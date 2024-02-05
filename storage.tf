@@ -10,15 +10,7 @@ resource "azurerm_storage_account" "sa" {
   account_replication_type = "LRS"
   is_hns_enabled           = true
   sftp_enabled             = true
-
-  //public_network_access_enabled = false
 }
-
-#resource "azurerm_storage_share" "share" {
-#  name                 = "${var.sftp_deployment.prefix}share"
-#  storage_account_name = azurerm_storage_account.sa.name
-#  quota                = 50
-#}
 
 resource "azurerm_storage_container" "container" {
   name                  = "${var.sftp_deployment.prefix}container"
@@ -29,7 +21,6 @@ resource "azurerm_storage_container" "container" {
 resource "azurerm_storage_account_local_user" "local_user" {
   name               = var.sftp_deployment.stfp_credential.user
   storage_account_id = azurerm_storage_account.sa.id
-  //ssh_key_enabled      = true
   ssh_password_enabled = true
   home_directory       = azurerm_storage_container.container.name
 
@@ -69,19 +60,3 @@ resource "azurerm_private_endpoint" "blob_private_endpoint" {
     azurerm_storage_account_local_user.local_user
   ]
 }
-
-//resource "azapi_update_resource" "update_resource-sa" {
-//  count       = azurerm_storage_account.sa.public_network_access_enabled == true ? 1 : 0
-//  type        = "Microsoft.Storage/storageAccounts@2022-09-01"
-//  resource_id = azurerm_storage_account.sa.id
-//
-//  body = jsonencode({
-//    properties = {
-//      allowBlobPublicAccess = false
-//    }
-//  })
-//
-//  depends_on = [
-//    azurerm_private_endpoint.blob_private_endpoint
-//  ]
-//}
